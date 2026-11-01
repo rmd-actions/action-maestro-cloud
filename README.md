@@ -2,12 +2,34 @@
 
 Run your Flows on [Maestro Cloud](https://app.maestro.dev).
 
+## Contents
+
+- [Using the action](#using-the-action)
+- [Inputs](#inputs)
+- [Triggers](#triggers)
+- [Android](#android)
+  - [ProGuard Deobfuscation](#proguard-deobfuscation)
+- [iOS](#ios)
+  - [.dSYM file](#dsym-file)
+- [Custom workspace location](#custom-workspace-location)
+- [Custom name](#custom-name)
+- [Custom branch](#custom-branch)
+- [Run in async mode](#run-in-async-mode)
+- [Adding environment variables](#adding-environment-variables)
+- [Using tags](#using-tags)
+- [Specifying device model and OS version](#specifying-device-model-and-os-version)
+- [Running Web tests](#running-web-tests)
+- [Using an already uploaded App](#using-an-already-uploaded-app)
+- [Configuring the locale for the device where the flows will be executed](#configuring-the-locale-for-the-device-where-the-flows-will-be-executed)
+- [Outputs](#outputs)
+  - [Output types](#output-types)
+
 ## Using the action
 
 Add the following to your workflow. Note that you can use the `v3` tag if you want to keep using the latest version of the action, which will automatically resolve to all `v3.minor.patch` versions as they get published.
 
 ```yaml
-- uses: mobile-dev-inc/action-maestro-cloud@v3.0.1
+- uses: mobile-dev-inc/action-maestro-cloud@v3.1.0
   with:
     api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
     project-id: 'proj_01example0example1example2' # replace this with your actual project id
@@ -20,20 +42,21 @@ Add the following to your workflow. Note that you can use the `v3` tag if you wa
 | ------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `api-key`           | Yes                      | Your Maestro Cloud API key                                                                                                                                                                 |
 | `android-api-level` | No                       | **Deprecated.** Use `device-os` instead (e.g. `android-33`).                                                                                                                               |
-| `app-file`          | Yes (or `app-binary-id`) | Path to the app file to upload.                                                                                                                                                            |
-| `app-binary-id`     | Yes (or `app-file`)      | The ID of a previously uploaded app-file.                                                                                                                                                  |
+| `app-file`          | Yes for Android/iOS (or `app-binary-id`) | Path to the app file to upload. Must be omitted for web tests (`device-os: web`).                                                                                                                                                            |
+| `app-binary-id`     | Yes for Android/iOS (or `app-file`) | The ID of a previously uploaded app-file. Must be omitted for web tests (`device-os: web`).                                                                                                                                                  |
 | `async`             | No                       | Whether to start the flow and exit the action (defaults to `false`)                                                                                                                        |
 | `branch`            | No                       | Branch name to use for the upload (overrides automatic detection)                                                                                                                          |
 | `env`               | No                       | Environment variables to pass to the run                                                                                                                                                   |
 | `exclude-tags`      | No                       | Comma-separated list of tags to exclude from the run                                                                                                                                       |
 | `include-tags`      | No                       | Comma-separated list of tags to include in the run                                                                                                                                         |
 | `mapping-file`      | No                       | Path to the ProGuard map (Android) or dSYM (iOS)                                                                                                                                           |
+| `priority`          | No                       | Queue priority of this upload within your organization: `low`, `normal` or `high` (defaults to `normal`). Higher priority flows start before lower priority flows waiting in the queue. Requires Maestro CLI 2.12.0 or later. |
 | `project-id`        | Yes                      | Which project to run the tests against                                                                                                                                                     |
 | `name`              | No                       | Friendly name of the run                                                                                                                                                                   |
 | `timeout`           | No                       | How long to wait for the run to complete when not async (defaults to 30 minutes)                                                                                                           |
 | `workspace`         | No                       | Path to the workspace directory containing the Flows (defaults to `.maestro`)                                                                                                              |
 | `device-model`      | No                       | The [device model](https://docs.maestro.dev/cloud/reference/configuring-os-version#using-a-specific-ios-minor-version-and-device-recommended) to use when running the Flows. Supported: iOS — `iPhone-11`, `iPhone-11-Pro`, etc.; Android — `pixel_6`, `pixel_7`, etc. |
-| `device-os`         | No                       | The [device OS version](https://docs.maestro.dev/cloud/reference/configuring-os-version) to use when running the Flows. iOS: `iOS-16-2`, `iOS-17-5`, `iOS-18-2`, etc. Android: `android-33`, `android-34`, etc.                                                        |
+| `device-os`         | No                       | The [device OS version](https://docs.maestro.dev/cloud/reference/configuring-os-version) to use when running the Flows. iOS: `iOS-16-2`, `iOS-17-5`, `iOS-18-2`, etc. Android: `android-33`, `android-34`, etc. Use `web` to run web Flows in a browser — no app file needed, see [Running Web tests](#running-web-tests).                                                        |
 | `device-locale`     | No                       | The [device locale](https://docs.maestro.dev/cloud/reference/configuring-device-locale) to use when running the Flows (eg en_US)                                                           |
 
 ## Triggers
@@ -70,7 +93,7 @@ For more information on triggering workflows, check out [GitHub's documentation]
 ## Android
 
 ```yaml
-- uses: mobile-dev-inc/action-maestro-cloud@v3.0.1
+- uses: mobile-dev-inc/action-maestro-cloud@v3.1.0
   with:
     api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
     project-id: 'proj_01example0example1example2'
@@ -84,7 +107,7 @@ For more information on triggering workflows, check out [GitHub's documentation]
 Include the ProGuard mapping file to deobfuscate Android performance traces:
 
 ```yaml
-- uses: mobile-dev-inc/action-maestro-cloud@v3.0.1
+- uses: mobile-dev-inc/action-maestro-cloud@v3.1.0
   with:
     api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
     project-id: 'proj_01example0example1example2'
@@ -95,7 +118,7 @@ Include the ProGuard mapping file to deobfuscate Android performance traces:
 ## iOS
 
 ```yaml
-- uses: mobile-dev-inc/action-maestro-cloud@v3.0.1
+- uses: mobile-dev-inc/action-maestro-cloud@v3.1.0
   with:
     api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
     project-id: 'proj_01example0example1example2'
@@ -108,7 +131,7 @@ Include the ProGuard mapping file to deobfuscate Android performance traces:
 ### .dSYM file
 
 ```yaml
-- uses: mobile-dev-inc/action-maestro-cloud@v3.0.1
+- uses: mobile-dev-inc/action-maestro-cloud@v3.1.0
   with:
     api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
     project-id: 'proj_01example0example1example2'
@@ -123,7 +146,7 @@ Include the ProGuard mapping file to deobfuscate Android performance traces:
 By default, the action is looking for a `.maestro` folder with Maestro flows in the root directory of the project. If you would like to customize this behaviour, you can override it with a `workspace` argument:
 
 ```yaml
-- uses: mobile-dev-inc/action-maestro-cloud@v3.0.1
+- uses: mobile-dev-inc/action-maestro-cloud@v3.1.0
   with:
     api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
     project-id: 'proj_01example0example1example2'
@@ -142,7 +165,7 @@ A name will automatically be provided according to the following order:
 If you want to override this behaviour and specify your own name, you can do so by setting the `name` argument:
 
 ```yaml
-- uses: mobile-dev-inc/action-maestro-cloud@v3.0.1
+- uses: mobile-dev-inc/action-maestro-cloud@v3.1.0
   with:
     api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
     project-id: 'proj_01example0example1example2'
@@ -155,6 +178,7 @@ If you want to override this behaviour and specify your own name, you can do so 
 The action automatically detects the branch name from the GitHub context. However, in certain workflow triggers like `issue_comment`, `repository_dispatch`, or `workflow_dispatch`, the automatic detection may not work correctly because these events typically run on the default branch (main) regardless of which branch you actually want to test.
 
 The `branch` input allows you to explicitly specify the branch name for these scenarios. This is particularly useful when:
+
 - Running tests on a PR branch via `issue_comment` events (e.g., comment-triggered workflows)
 - Triggering workflows via API with `repository_dispatch`
 - Using `workflow_dispatch` to manually test a specific branch
@@ -182,7 +206,7 @@ jobs:
           HEAD_REF=$(gh pr view "$PR_NUMBER" --json headRefName --jq '.headRefName')
           echo "branch=$HEAD_REF" >> $GITHUB_OUTPUT
 
-      - uses: mobile-dev-inc/action-maestro-cloud@v3.0.1
+      - uses: mobile-dev-inc/action-maestro-cloud@v3.1.0
         with:
           api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
           project-id: 'proj_01example0example1example2'
@@ -195,7 +219,7 @@ jobs:
 If you don't want the action to wait until the Upload has been completed as is the default behaviour, set the `async` argument to `true`:
 
 ```yaml
-- uses: mobile-dev-inc/action-maestro-cloud@v3.0.1
+- uses: mobile-dev-inc/action-maestro-cloud@v3.1.0
   with:
     api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
     project-id: 'proj_01example0example1example2'
@@ -206,7 +230,7 @@ If you don't want the action to wait until the Upload has been completed as is t
 Alternatively, you might want to still wait for the action but would like to configure the timeout period, set `timeout` argument to a number of minutes:
 
 ```yaml
-- uses: mobile-dev-inc/action-maestro-cloud@v3.0.1
+- uses: mobile-dev-inc/action-maestro-cloud@v3.1.0
   with:
     api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
     project-id: 'proj_01example0example1example2'
@@ -219,7 +243,7 @@ Alternatively, you might want to still wait for the action but would like to con
 If you want to pass environment variables along with your upload, add a multiline `env` argument:
 
 ```yaml
-- uses: mobile-dev-inc/action-maestro-cloud@v3.0.1
+- uses: mobile-dev-inc/action-maestro-cloud@v3.1.0
   with:
     api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
     project-id: 'proj_01example0example1example2'
@@ -236,7 +260,7 @@ You can use Maestro [Tags](https://maestro.mobile.dev/cli/tags) to filter which 
 You can either pass a single value, or comma-separated (`,`) values.
 
 ```yaml
-- uses: mobile-dev-inc/action-maestro-cloud@v3.0.1
+- uses: mobile-dev-inc/action-maestro-cloud@v3.1.0
   with:
     api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
     project-id: 'proj_01example0example1example2'
@@ -257,7 +281,7 @@ Supported values:
 iOS example:
 
 ```yaml
-- uses: mobile-dev-inc/action-maestro-cloud@v3.0.1
+- uses: mobile-dev-inc/action-maestro-cloud@v3.1.0
   with:
     api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
     project-id: 'proj_01example0example1example2'
@@ -269,7 +293,7 @@ iOS example:
 Android example:
 
 ```yaml
-- uses: mobile-dev-inc/action-maestro-cloud@v3.0.1
+- uses: mobile-dev-inc/action-maestro-cloud@v3.1.0
   with:
     api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
     project-id: 'proj_01example0example1example2'
@@ -286,7 +310,7 @@ If your workspace contains Web tests that are supposed to run on a real browser,
 You don't have to specify `app-file`.
 
 ```yaml
-- uses: mobile-dev-inc/action-maestro-cloud@v3.0.1
+- uses: mobile-dev-inc/action-maestro-cloud@v3.1.0
   with:
     api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
     project-id: 'proj_01example0example1example2'
@@ -299,13 +323,13 @@ You can use an already uploaded binary in Maestro Cloud using the `app-binary-id
 
 ```yaml
 - id: upload
-  uses: mobile-dev-inc/action-maestro-cloud@v3.0.1
+  uses: mobile-dev-inc/action-maestro-cloud@v3.1.0
   with:
     api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
     project-id: 'proj_01example0example1example2'
     app-file: app.zip
 
-- uses: mobile-dev-inc/action-maestro-cloud@v3.0.1
+- uses: mobile-dev-inc/action-maestro-cloud@v3.1.0
   with:
     api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
     project-id: 'proj_01example0example1example2'
@@ -317,7 +341,7 @@ You can use an already uploaded binary in Maestro Cloud using the `app-binary-id
 To switch the device locale on a remote device from a default one (en_US) `device-locale` parameter should be used. The value is a combination of lowercase ISO-639-1 code and uppercase ISO-3166-1 code, i.e. "de_DE" for Germany.
 
 ```yaml
-- uses: mobile-dev-inc/action-maestro-cloud@v3.0.1
+- uses: mobile-dev-inc/action-maestro-cloud@v3.1.0
   with:
     api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
     project-id: 'proj_01example0example1example2'
@@ -338,7 +362,7 @@ In order to access these variables you can use the following approach:
 
 ```yaml
 - id: upload
-  uses: mobile-dev-inc/action-maestro-cloud@v3.0.1
+  uses: mobile-dev-inc/action-maestro-cloud@v3.1.0
   with:
     api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
     project-id: 'proj_01example0example1example2'
